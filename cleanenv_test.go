@@ -82,6 +82,11 @@ func TestReadEnvVars(t *testing.T) {
 		Required    int `env:"REQUIRED" env-required:"true"`
 	}
 
+	type RequiredString struct {
+		NotRequired string `env:"NOT_REQUIRED"`
+		Required    string `env:"REQUIRED" env-required:"true"`
+	}
+
 	tests := []struct {
 		name    string
 		env     map[string]string
@@ -305,6 +310,17 @@ func TestReadEnvVars(t *testing.T) {
 			want:    &Required{},
 			wantErr: true,
 		},
+
+		{
+			name: "required string error",
+			env: map[string]string{
+				"REQUIRED":     "",
+				"NOT_REQUIRED": "",
+			},
+			cfg:     &RequiredString{},
+			want:    &RequiredString{},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -313,8 +329,8 @@ func TestReadEnvVars(t *testing.T) {
 				os.Setenv(env, val)
 			}
 			defer os.Clearenv()
-
-			if err := readEnvVars(tt.cfg, false); (err != nil) != tt.wantErr {
+			err := readEnvVars(tt.cfg, false)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("wrong error behavior %v, wantErr %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(tt.cfg, tt.want) {

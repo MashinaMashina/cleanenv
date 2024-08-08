@@ -440,7 +440,7 @@ func readEnvVars(cfg interface{}, update bool) error {
 			envName = meta.envList[0]
 		}
 
-		if rawValue == nil && meta.required && meta.isFieldValueZero() {
+		if (rawValue == nil || *rawValue == "") && meta.required && meta.isFieldValueZero() {
 			return newRequireError(meta.fieldName, meta.path, envName)
 		}
 
